@@ -1,12 +1,19 @@
-fun getnearbylist(zip, threshold, ziplist) = 
+fun getnearbylist(center, threshold, ziplist) = 
 	let
 		open TextIO;
 		exception InvalidZip
+		exception ThresholdOutOfRange
 
 		fun distance_away((lat1, long1), (lat2, long2)) = Math.acos( Math.sin((90.0 -lat1)*2.0 *Math.pi/360.0) *Math.sin((90.0-lat2)*2.0 *Math.pi/360.0) * Math.cos((long1*2.0 *Math.pi/360.0) - (long2*2.0 *Math.pi/360.0))  + (Math.cos((90.0-lat1)*2.0 *Math.pi/360.0) * Math.cos((90.0-lat2)*2.0 *Math.pi/360.0)) ) *3960.0;
-	
 		
+		(* print “Error: Negative Threshold” and return an empty list. To do this, define an exception called ThresholdOutOfRange, raise it if the 
 
+		threshold is negative, and handle the exception to achieve the proper behavior. 
+		*)
+		(*fun threshold_driver() =
+		[]
+		handle ThresholdOutOfRange => print “Error: Negative Threshold \n”
+		*)
 		(*to convert string option, or input lint tostring, do valOf (SOME "jfdkn")*)
 		(*to get zip do substring(valOf(inputLine(file)), 1, 5) *)
 		(*Convert string to real valOf(Real.fromString("2342"))*)
@@ -27,11 +34,14 @@ fun getnearbylist(zip, threshold, ziplist) =
 		fun test_threshold(threshold, zip, nil) =nil
 		
 		|   test_threshold(threshold, zip, ziplist as x::xs) =
+		
 		let
 			val file = openIn("zips.csv");
 		
 		in
-		if x> zip then 
+		if (threshold <0.0) then raise ThresholdOutOfRange
+		
+		else if x> zip then 
 			if distance_away(get_latlong(get_zip(zip,file)),get_latlong(get_zip(x,file))) < threshold 
 				then x :: test_threshold(threshold, zip, xs)
 			else test_threshold(threshold, zip, xs)
@@ -45,5 +55,5 @@ fun getnearbylist(zip, threshold, ziplist) =
 		
 		
 	in
-		test_threshold(threshold, zip, ziplist)
+		test_threshold(threshold, center, ziplist)
 	end;
