@@ -19,6 +19,7 @@ fun getnearbylist(center, threshold, ziplist) =
 		else if (zip = substring(valOf(line),1,5)) then get_latlong(line)
 		else get_zip(zip,file) 
 		end;
+		(* This function goes through the file line by line. When it finds the line with the zip in it, it calls get_latlong, which returns the lat and long of the zip asa tuple, by finding the substring in the line for lat and long, which is then converted to a tuple of two real numbers*)
 		
 		fun openfile(zip) =
 		let
@@ -27,13 +28,13 @@ fun getnearbylist(center, threshold, ziplist) =
 		in 
 			get_zip(zip, file)
 		end;
-		(* This function goes through the file line by line. When it finds the line with the zip in it, it calls get_latlong, to return the lat and long of the zip.*)
 		
+		(*Opens the file every time get_zip is called so the token starts at the beginning of the file and doesn't miss any zips.*)
 		
 		fun test_threshold(center,threshold,nil) =nil
 		|   test_threshold(center,threshold,x::xs) =
 		if (threshold <0.0) then raise ThresholdOutOfRange(center,threshold,x::xs) 
-		else if distance_away(get_latlong(openfile(center)),get_latlong(openfile(x))) < threshold 
+		else if distance_away(openfile(center),openfile(x)) < threshold 
 				then x :: test_threshold(center,threshold,xs)
 		else
 			test_threshold(center,threshold,xs);
@@ -48,5 +49,6 @@ fun getnearbylist(center, threshold, ziplist) =
 		(*This function handles the negative Threshold error. *)
 	in
 		ziphandle(center,threshold,ziplist)
+		(*Calls the handler and returns the list of zips in the threshold.*)
 		end;
 			
